@@ -8,7 +8,7 @@ class SN_Env(gym.Env):
     metadata = {'render.modes': ['human']}
 
     def __init__(self, numb_nodes, connectivity, numb_sources_true, numb_sources_false, max_iterations=30,
-                 pre_training=False, pre_training_episodes_1=50000, pre_training_episodes_2=100000):
+                 pre_training=False, pre_training_episodes_1=50000, pre_training_episodes_2=100000, playing=True):
         super(SN_Env, self).__init__()
 
         self.action_space = spaces.MultiBinary(numb_nodes)
@@ -24,10 +24,15 @@ class SN_Env(gym.Env):
 
         # set up pre-training parameters
         self.pre_training = pre_training
-        self.pre_training_phase_1 = True
+        if pre_training:
+            self.pre_training_phase_1 = True
+        else:
+            self.pre_training_phase_1 = False
+
         self.pre_training_max_iterations_1 = pre_training_episodes_1
         self.pre_training_max_iterations_2 = pre_training_episodes_2
         self.pre_training_iterations = 0
+        self.playing = playing
 
         self._set_up_network()
 
@@ -144,8 +149,9 @@ class SN_Env(gym.Env):
 
     def _calculate_reward_discrete(self):
         # Helps to stop agent into converging into local minima where no members are excluded at all
-        if self.excluded_members == 0:
-            return 0
+        if not self.playing:
+            if self.excluded_members == 0:
+                return 0
         if (self.numb_nodes - self.excluded_members > 0):
             action_boolean = list(map(lambda x: True if x == 0 else False, self.excluded_members_array))
             state_active_members = self.state[action_boolean]

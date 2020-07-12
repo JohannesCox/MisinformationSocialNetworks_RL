@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
     args = read_in_parameters()
     env = SN_Env(args.numb_nodes, args.connectivity, args.numb_sources_true, args.numb_sources_false,
-                 args.max_iterations, True, 100000)
+                 args.max_iterations, True, 100000, 300000)
 
     if not np.os.path.exists(args.save_dir):
         np.os.mkdir(args.save_dir)

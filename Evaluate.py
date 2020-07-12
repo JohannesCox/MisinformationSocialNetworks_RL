@@ -4,13 +4,13 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
-from stable_baselines import A2C
+from stable_baselines import A2C, TRPO
 from SocialNetwork import SN_Env
 from A2C_Train import NetworkParameters
 
-save_dir = "logs/ppo_9t_1f/"
+save_dir = "logs/TRPO_9t_1f/"
 play_iterations = 300
-random_exclude = 5
+random_exclude = 0
 gamma = 0.99
 
 def read_in_parameters(file):
@@ -40,13 +40,12 @@ class RandomAgent:
         return reward_random, all_discounted_rewards_random
 
 def compare_model_random_agent():
-    env = SN_Env(args.numb_nodes, args.connectivity, args.numb_sources_true, args.numb_sources_false, args.max_iterations,
-                 args.max_reward, False)
+    env = SN_Env(args.numb_nodes, args.connectivity, args.numb_sources_true, args.numb_sources_false, args.max_iterations, False, playing=True)
 
-    model = A2C.load(save_dir + "model")
+    model = TRPO.load(save_dir + "model")
     random_agent = RandomAgent(0)
-    episode_reward_all_model = np.zeros((play_iterations, 1))
-    episode_reward_all_RA = np.zeros((play_iterations, 1))
+    episode_reward_all_model = np.zeros((play_iterations, args.max_iterations))
+    episode_reward_all_RA = np.zeros((play_iterations, args.max_iterations))
     all_discounted_rewards_random = np.zeros((args.max_iterations, play_iterations))
     all_discounted_rewards_model = np.zeros((args.max_iterations, play_iterations))
 
