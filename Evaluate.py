@@ -1,17 +1,20 @@
 import json
 
 import numpy as np
-
+import tensorflow as tf
 import matplotlib.pyplot as plt
 
-from stable_baselines import A2C, TRPO
+from stable_baselines import A2C, TRPO, PPO1
 from SocialNetwork import SN_Env
 from A2C_Train import NetworkParameters
 
-save_dir = "logs/TRPO_9t_1f/"
+save_dir = "logs/A2C_9t_1f_rf3/"
 play_iterations = 300
 random_exclude = 0
-gamma = 0.99
+gamma = 0.95
+policy_kwargs = dict(act_fun=tf.nn.tanh, net_arch=[48, 16])
+model = A2C.load(save_dir + "model", policy_kwargs=policy_kwargs)
+
 
 def read_in_parameters(file):
     with open(file + "config.json") as json_file:
@@ -40,9 +43,8 @@ class RandomAgent:
         return reward_random, all_discounted_rewards_random
 
 def compare_model_random_agent():
-    env = SN_Env(args.numb_nodes, args.connectivity, args.numb_sources_true, args.numb_sources_false, args.max_iterations, False, playing=True)
+    env = SN_Env(args.numb_nodes, args.connectivity, args.numb_sources_true, args.numb_sources_false, args.max_iterations, playing=True)
 
-    model = TRPO.load(save_dir + "model")
     random_agent = RandomAgent(0)
     episode_reward_all_model = np.zeros((play_iterations, args.max_iterations))
     episode_reward_all_RA = np.zeros((play_iterations, args.max_iterations))
@@ -80,7 +82,7 @@ def compare_model_random_agent():
     print("Average reward random agent: " + str(np.mean(episode_reward_all_RA)))
     make_figure_rewardIteration(np.mean(all_discounted_rewards_random, axis=1), np.mean(all_discounted_rewards_model, axis=1), "random_agent", "model")
 
-def make_figure_rewardIteration(rewards1, rewards2, label1, label2, iterations=args.max_iterations, gamma=0.99):
+def make_figure_rewardIteration(rewards1, rewards2, label1, label2, iterations=args.max_iterations, gamma=0.95):
     optimum = np.zeros((iterations,))
     reward = 0
     for i in range(iterations):
@@ -100,7 +102,7 @@ def make_figure_rewardIteration(rewards1, rewards2, label1, label2, iterations=a
 
 def compare_two_random_agents(exclude1, exclude2):
     env = SN_Env(args.numb_nodes, args.connectivity, args.numb_sources_true, args.numb_sources_false,
-                 args.max_iterations, args.max_reward)
+                 args.max_iterations, playing=True)
 
     random_agent_1 = RandomAgent(exclude1)
     random_agent_2 = RandomAgent(exclude2)
@@ -126,3 +128,4 @@ def compare_two_random_agents(exclude1, exclude2):
 
 if __name__ == '__main__':
     compare_model_random_agent()
+    #compare_two_random_agents(0,1)

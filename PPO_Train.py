@@ -2,10 +2,10 @@ import json
 from shutil import copyfile
 
 import numpy as np
+import tensorflow as tf
 
 from stable_baselines.common.policies import MlpPolicy
 from stable_baselines import PPO1
-
 from SocialNetwork import SN_Env
 
 class NetworkParameters:
@@ -28,13 +28,16 @@ if __name__ == '__main__':
 
     args = read_in_parameters()
     env = SN_Env(args.numb_nodes, args.connectivity, args.numb_sources_true, args.numb_sources_false,
-                 args.max_iterations, True, 100000, 300000)
+                 args.max_iterations, playing=False)
 
     if not np.os.path.exists(args.save_dir):
         np.os.mkdir(args.save_dir)
 
-    model = PPO1(MlpPolicy, env, verbose=1, tensorboard_log=args.save_dir + "/tensorboard_log/")
-    model.learn(total_timesteps=10000000)
+    policy_kwargs = dict(act_fun=tf.nn.tanh, net_arch=[32, 32])
+
+    model = PPO1(MlpPolicy, env, verbose=1, policy_kwargs=policy_kwargs, tensorboard_log=args.save_dir + "/tensorboard_log/",
+                 entcoeff=0.02, gamma=0.95, schedule="constant", optim_stepsize=0.0001)
+    model.learn(total_timesteps= 10000000)
     model.save(args.save_dir + "/model")
 
     copyfile("config.json", args.save_dir + "/config.json")
