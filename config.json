@@ -1,10 +1,9 @@
 {
-  "numb_nodes": 30,
+  "numb_nodes": 50,
   "connectivity": 0.1,
   "numb_sources_true": 9,
   "numb_sources_false": 1,
   "max_iterations": 30,
-  "max_reward": 100,
 
-  "save_dir": "logs/TRPO_9t_1f"
+  "save_dir": "logs/A2C_9t_1f_50nodes"
 }

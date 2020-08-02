@@ -45,15 +45,15 @@ class SN_Env(gym.Env):
     metadata = {'render.modes': ['human']}
 
     def __init__(self, numb_nodes, connectivity, numb_sources_true, numb_sources_false, max_iterations=30,
-                 playing=False,
-                 immediate_reward_factor_false_nodes=0.12, immediate_reward_factor_true_nodes=0.008, training_statistics_interval=100):
+                 excluding_decision_boundary=0.1, playing=False, display_statistics=True,
+                 training_statistics_interval=100):
 
         super(SN_Env, self).__init__()
 
         # define gym variables
-        self.action_space = spaces.MultiBinary(numb_nodes)
+        self.action_space = spaces.Box(low=0, high=1, shape=(numb_nodes,), dtype=np.float32)
         self.observation_space = spaces.Box(low=-1, high=1, shape=(numb_nodes + 1,), dtype=np.float32)
-        self.reward_range = (1, 0)
+        self.reward_range = (-1, 1)
 
         # define network variables
         self.numb_nodes = numb_nodes
@@ -61,52 +61,63 @@ class SN_Env(gym.Env):
         self.numb_sourcesFalse = numb_sources_false
         self.max_iterations = max_iterations
         self.connectivity = connectivity
+        self.excluded_members_array = np.zeros((numb_nodes,))
+        self.state = np.zeros((numb_nodes,))
 
         # define reward variables
         self.playing = playing
-        self.immediate_reward_factor_false_nodes = immediate_reward_factor_false_nodes
-        self.immediate_reward_factor_true_nodes = immediate_reward_factor_true_nodes
+        self.excluding_decision_boundary = excluding_decision_boundary
 
         # define statistic variables
         self.training_statistics_interval = training_statistics_interval
         self.statistics = Statistics()
         self.ep_training_iterations = 0
         self.exclusion_statistics = np.zeros((self.training_statistics_interval,))
+        self.display_statistics = display_statistics
 
         self._set_up_network()
 
-    def step(self, action):
+    def step(self, action_box):
         # Execute one time step within the environment
 
-        old_state = self.state[self.excluded_members_array == 0]
-        action_old_state = action[self.excluded_members_array == 0]
+        def hard_desc(x): return 1 if x < self.excluding_decision_boundary else 0
+
+        vec_hard_desc = np.vectorize(hard_desc)
+        action_hard_decision = vec_hard_desc(action_box)
+        action_hard_decision = action_hard_decision.astype(np.int32)
+
         # Exclude all members where nodeID in action is 1 by setting their state value to zero and deleting all their
         # edges.
-        action_inverse = list(map(lambda x: 1 if x == 0 else 0, action))
-        action_boolean = list(map(lambda x: True if x == 1 else False, action))
+        def action_inverse_func(x): return 1 if x == 0 else 0
+
+        vec_inverse_func = np.vectorize(action_inverse_func)
+        action_inverse = vec_inverse_func(action_hard_decision)
+
+        def act_bool(x): return True if x == 1 else False
+
+        vec_act_bool = np.vectorize(act_bool)
+        action_boolean = vec_act_bool(action_hard_decision)
 
         old_state_excluded = np.multiply(action_inverse, self.state)
         self.state = old_state_excluded
         self.edges[action_boolean, :] = 0
         self.edges[:, action_boolean] = 0
 
-        new_array_excluded = np.minimum(action + self.excluded_members_array, np.ones((self.numb_nodes,), dtype=int))
+        new_array_excluded = np.minimum(action_hard_decision + self.excluded_members_array,
+                                        np.ones((self.numb_nodes,), dtype=int))
 
         self.excluded_members += (np.sum(new_array_excluded) - np.sum(self.excluded_members_array))
         self.excluded_members_array = new_array_excluded
 
         self.state = self._next_observation()
 
-        if not self.playing:
-            reward = self._calculate_reward(action_old_state, old_state)
-        else:
-            reward = self._calculate_reward_discrete()
+        reward = self._calculate_reward(action_box)
 
         self.iteration += 1
 
         done = (self.iteration >= self.max_iterations) or (self.excluded_members == self.numb_nodes)
 
-        if not self.playing and done:
+        if self.display_statistics and done:
             self.exclusion_statistics[self.ep_training_iterations] = self.excluded_members
             self.ep_training_iterations += 1
 
@@ -116,15 +127,15 @@ class SN_Env(gym.Env):
 
         return return_state, reward, done, {}
 
-    def reset(self, set_Seed=False, seed=0):
+    def reset(self, set_seed=False, seed=0):
         # Reset the state of the environment to an initial state
-        if set_Seed:
+        if set_seed:
             np.random.seed(seed)
         else:
             np.random.seed()
         self._set_up_network()
 
-        # last element of return_state is porgress / current iteration
+        # last element of return_state is progress / current iteration
         return_state = np.zeros((self.numb_nodes + 1,))
         return_state[0:-1] = self.state
 
@@ -140,7 +151,7 @@ class SN_Env(gym.Env):
     def _set_up_network(self):
 
         # update and print statistics
-        if not self.playing and self.ep_training_iterations > 0 and (
+        if self.display_statistics and self.ep_training_iterations > 0 and (
                 self.ep_training_iterations % self.training_statistics_interval) == 0:
             self._update_statistics()
 
@@ -156,9 +167,8 @@ class SN_Env(gym.Env):
         # create trust in sources
         trust_in_sources_nn = np.zeros((self.numb_nodes, self.sources.shape[0]))
 
-        # trust_in_sources_nn[:, 0:3] = np.random.random((self.numb_nodes, 3)) # trust in 3 sources
-        trust_in_sources_nn[:, 0] = np.random.random((self.numb_nodes,))
-        self.initial_noise = np.random.normal(0, 0.01, self.numb_nodes)
+        trust_in_sources_nn[:, 0:3] = np.random.random((self.numb_nodes, 3))  # trust in 3 sources
+        self.initial_noise = np.random.normal(0, 0.1, self.numb_nodes)
 
         [np.random.shuffle(x) for x in trust_in_sources_nn]
 
@@ -174,7 +184,7 @@ class SN_Env(gym.Env):
         self.state += + self.initial_noise  # Add noise to initial state
 
         self.excluded_members = 0
-        self.excluded_members_array = np.zeros((self.numb_nodes,))
+        self.excluded_members_array = np.zeros((self.numb_nodes,), dtype=np.int32)
         self.initial_noise = np.zeros((self.numb_nodes,))
         self.iteration = 0
         self.false_exclusions = 0
@@ -184,8 +194,11 @@ class SN_Env(gym.Env):
 
         # Get network factor
         network_values = np.dot(self.edges, self.state)
-        action_boolean = list(
-            map(lambda x: True if x == 1 else False, self.excluded_members_array))  # omit excluded members
+
+        def act_bool(x): return True if x == 1 else False
+
+        vec_act_bool = np.vectorize(act_bool)
+        action_boolean = vec_act_bool(self.excluded_members_array)  # omit excluded members
         sum_over_edges = self.edges.sum(axis=1)
         # ignore excluded members
         network_values_normalized = np.divide(network_values, sum_over_edges, out=np.zeros_like(network_values),
@@ -205,122 +218,16 @@ class SN_Env(gym.Env):
 
         return new_observation
 
-    def _calculate_reward(self, action, old_state):
-
-        if self.numb_nodes - self.excluded_members > 0:
-            # reward over all active nodes
-            reward_all_nodes = self._calculate_reward_discrete()
-
-            # extra reward for exclusion of clearly false nodes
-            numb_correct_exclusions, numb_missed_exclusions = self._get_missed_exclusions(action, old_state)
-            numb_clearly_false_nodes = numb_correct_exclusions + numb_missed_exclusions
-            bonus_reward_false_nodes = 2 * numb_correct_exclusions - numb_missed_exclusions
-            if numb_clearly_false_nodes > 0:
-                bonus_reward_false_nodes_normalized = (bonus_reward_false_nodes / (3 * numb_clearly_false_nodes)) + (
-                        1 / 3)
-                false_factor = self.immediate_reward_factor_false_nodes * numb_clearly_false_nodes
-            else:
-                bonus_reward_false_nodes_normalized = 0
-                false_factor = 0
-
-            # extra reward for keeping clearly true nodes
-            numb_false_exclusions, numb_correct_non_exclusions = self._get_false_exclusions(action, old_state)
-            self.false_exclusions += numb_false_exclusions
-            numb_clearly_true_nodes = numb_false_exclusions + numb_correct_non_exclusions
-            bonus_reward_true_nodes = 2 * numb_correct_non_exclusions - numb_false_exclusions
-            if numb_clearly_true_nodes > 0:
-                bonus_reward_true_nodes_normalized = (bonus_reward_true_nodes / (3 * numb_clearly_true_nodes)) + (1 / 3)
-                true_factor = self.immediate_reward_factor_true_nodes * self.false_exclusions
-            else:
-                bonus_reward_true_nodes_normalized = 0
-                true_factor = 0
-
-            reward = (1 - false_factor - true_factor) * reward_all_nodes + false_factor \
-                     * bonus_reward_false_nodes_normalized + true_factor * bonus_reward_true_nodes_normalized
-
-        else:
-            reward = 0  # if all members are excluded
-
-        return reward
-
-    def _calculate_reward_discrete(self):
-        if self.numb_nodes - self.excluded_members > 0:
-            action_boolean = list(map(lambda x: True if x == 0 else False, self.excluded_members_array))
-            state_active_members = self.state[action_boolean]
-            difference = np.abs(state_active_members - self.sources_true_value)
-            difference_discrete = list(map(lambda x: self._get_discrete_reward(x), difference))
-            reward_total = np.add.reduce(difference_discrete)
-            return reward_total / (self.numb_nodes - self.excluded_members)
-        else:
-            return 0
-
-    def _get_discrete_reward(self, dif):
-        if dif < 0.5:
-            return -2 * dif + 1
-        else:
-            return 0
-
-    def _get_missed_exclusions(self, action, old_state):
-        is_false_value = lambda x: True if np.abs((x - self.sources_true_value)) > 0.2 else False
-        numb_missed_exclusions = np.sum(
-            list(map(lambda x: 1 if is_false_value(x[1]) and x[0] == 0 else 0, zip(action, old_state))))
-        numb_correct_exclusions = np.sum(
-            list(map(lambda x: 1 if is_false_value(x[1]) and x[0] == 1 else 0, zip(action, old_state))))
-        return numb_correct_exclusions, numb_missed_exclusions
-
-    def _get_false_exclusions(self, action, old_state):
-        is_true_value = lambda x: True if np.abs((x - self.sources_true_value)) < 0.05 else False
-        numb_false_exclusions = np.sum(
-            list(map(lambda x: 1 if is_true_value(x[1]) and x[0] == 1 else 0, zip(action, old_state))))
-        numb_correct_nonexclusions = np.sum(
-            list(map(lambda x: 1 if is_true_value(x[1]) and x[0] == 0 else 0, zip(action, old_state))))
-        return numb_false_exclusions, numb_correct_nonexclusions
-
-    # def _calculate_immediate_reward_one_iteration(self, action, state):
-    #     sources_imbalance = 1.3 * (self.numb_sourcesTrue / self.numb_sourcesFalse)
-    #     is_true_value = lambda x: True if np.abs((x - self.sources_true_value)) < 0.01 else False
-    #     correct_action_true = lambda x, y: True if (is_true_value(x) and y == 0) else False
-    #     correct_action_false = lambda x, y: True if (not is_true_value(x) and y == 1) else False
-    #     rewards = list(map(lambda x: 1 if (correct_action_true(x[0], x[1])) else (
-    #         sources_imbalance if (correct_action_false(x[0], x[1]))
-    #         else (-sources_imbalance if (not correct_action_false(x[0], x[1]) and not is_true_value(x[0]))
-    #               else -1)), zip(state, action)))
-    #     best_possible_reward = np.sum(list(map(lambda x: sources_imbalance if not is_true_value(x) else 1, state)))
-    #     normalized_reward = (np.sum(rewards) + best_possible_reward) / (2 * best_possible_reward)
-    #     return normalized_reward
-    #
-    # def _calculate_immediate_reward_multiple_iterations(self, action, state):
-    #     sources_imbalance = 1.5 * (self.numb_sourcesTrue / self.numb_sourcesFalse)
-    #     is_true_value = lambda x: True if np.abs((x - self.sources_true_value)) < 0.01 else False
-    #     already_excluded = lambda x: True if x == -1 else False
-    #     false_exclusion = lambda x, y: True if (is_true_value(x) and y == 1) else False
-    #     false_keeping = lambda x, y: True if (not is_true_value(x) and y == 0) else False
-    #     correct_exclusion = lambda x, y: True if (not is_true_value(x) and y == 1) else False
-    #     rewards = list(map(lambda x: 0 if already_excluded(x[0]) else (
-    #         -1 if false_exclusion(x[0], x[1]) else (-sources_imbalance if false_keeping(x[0], x[1]) else
-    #                                                 (sources_imbalance if correct_exclusion(x[0], x[1]) else 1))),
-    #                        zip(state, action)))
-    #     best_possible_reward = np.sum(
-    #         list(map(lambda x: 1 if is_true_value(x) else (0 if (already_excluded(x)) else sources_imbalance), state)))
-    #     normalized_reward = (np.sum(rewards) + best_possible_reward) / (2 * best_possible_reward)
-    #     return normalized_reward
-
     def _generate_false_sources(self, true_value, size):
-        '''
-        Generate false source values with uniform distribution in interval {[0,true_value-0.2],[true_value+0.2,1]}
-        :param true_value:
-        :param size:
-        :return:
-        '''
-        if true_value - 0.2 > 0:
-            lower_interval = np.random.uniform(0, true_value - 0.2, size=size)
-            size_li = true_value - 0.2
+        if true_value - 0.4 > 0:
+            lower_interval = np.random.uniform(0, true_value - 0.4, size=size)
+            size_li = true_value - 0.4
         else:
             size_li = 0
             lower_interval = np.zeros((size,))
-        if true_value + 0.2 < 1:
-            upper_interval = np.random.uniform(true_value + 0.2, 1, size=size)
-            size_ui = 1 - (true_value + 0.2)
+        if true_value + 0.4 < 1:
+            upper_interval = np.random.uniform(true_value + 0.4, 1, size=size)
+            size_ui = 1 - (true_value + 0.4)
         else:
             size_ui = 0
             upper_interval = np.zeros((size,))
@@ -340,3 +247,20 @@ class SN_Env(gym.Env):
         self.statistics.print_statistics()
         self.ep_training_iterations = 0
         self.exclusion_statistics = np.zeros((self.training_statistics_interval,))
+
+    def _calculate_reward(self, action_box):
+        if self.excluded_members < self.numb_nodes:
+            trust = action_box[self.excluded_members_array == 0]
+            values = self.state[self.excluded_members_array == 0]
+            estimated_value = np.sum(np.multiply(trust, values))
+            estimated_value_normalized = estimated_value / np.sum(trust)
+            reward = self._get_linear_reward(np.abs(estimated_value_normalized - self.sources_true_value))
+            return reward
+        else:
+            return -1
+
+    def _get_linear_reward(self, dif):
+        if dif < 0.5:
+            return -2 * dif + 1
+        else:
+            return 0

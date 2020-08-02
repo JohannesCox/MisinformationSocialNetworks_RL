@@ -5,7 +5,9 @@ import numpy as np
 import tensorflow as tf
 from stable_baselines import A2C
 from stable_baselines.common.policies import MlpPolicy
+from stable_baselines.gail import ExpertDataset
 
+from Create_Pretraining_Dataset import generate_pretraining_dataset
 from SocialNetwork import SN_Env
 
 
@@ -35,11 +37,18 @@ if __name__ == '__main__':
     if not np.os.path.exists(args.save_dir):
         np.os.mkdir(args.save_dir)
 
-    policy_kwargs = dict(act_fun=tf.nn.tanh, net_arch=[48, 16])
+    policy_kwargs = dict(act_fun=tf.nn.tanh, net_arch=[dict(pi=[128, 128], vf=[128, 128])])
 
-    model = A2C(MlpPolicy, env, verbose=1, tensorboard_log=args.save_dir + "/tensorboard_log/", ent_coef=0.2,
-                gamma=0.95, policy_kwargs=policy_kwargs, lr_schedule="double_middle_drop", learning_rate=0.006)
-    model.pretrain(0)
-    model.learn(total_timesteps=10000000)
-    model.save(args.save_dir + "/model")
+    model = A2C(MlpPolicy, env, verbose=1, tensorboard_log=args.save_dir + "/tensorboard_log/", ent_coef=0.02,
+                gamma=0.99, policy_kwargs=policy_kwargs)
+
+    generate_pretraining_dataset(env, 25600, "logs/pretraining_datasets/v50.1.npz")
+    dataset = ExpertDataset(expert_path="logs/pretraining_datasets/v50.1.npz", train_fraction=0.95)
+
+    model.pretrain(dataset, n_epochs=500)
+    model.save(args.save_dir + "/model_pretraining")
+
+    model.learn(total_timesteps=1000000)
+    model.save(args.save_dir + "/model_complete")
+
     copyfile("config.json", args.save_dir + "/config.json")
