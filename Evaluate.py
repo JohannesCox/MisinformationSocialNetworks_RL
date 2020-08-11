@@ -3,15 +3,16 @@ import json
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-from stable_baselines import A2C
+from stable_baselines import A2C, PPO1
 
 from A2C_Train import NetworkParameters
+from Create_Pretraining_Dataset import get_optimal_action
 from SocialNetwork import SN_Env
 
-save_dir = "logs/A2C_9t_1f_100nodes/"
+save_dir = "logs/A2C_9t_1f_100nodes_MLP_10iter_v2/"
 play_iterations = 300
 gamma = 0.99
-policy_kwargs = dict(act_fun=tf.nn.tanh, net_arch=[128, 128])
+policy_kwargs = dict(net_arch=[1024, 1024, 1024, dict(vf=[1024, 512], pi=[1024, 1024, 512])], act_fun=tf.nn.tanh)
 model_complete = A2C.load(save_dir + "model_complete", policy_kwargs=policy_kwargs)
 model_pretraining = A2C.load(save_dir + "model_pretraining", policy_kwargs=policy_kwargs)
 
@@ -42,7 +43,8 @@ class DoNothingAgent:
 
 def compare_model_random_agent():
     env = SN_Env(args.numb_nodes, args.connectivity, args.numb_sources_true, args.numb_sources_false,
-                 args.max_iterations, playing=True, display_statistics=False)
+                 args.max_iterations, playing=True, display_statistics=False,
+                 initial_noise_variance=args.initial_noise_variance)
 
     random_agent = DoNothingAgent()
     episode_reward_all_model_complete = np.zeros((play_iterations, args.max_iterations))
@@ -91,8 +93,7 @@ def compare_model_random_agent():
             episode_reward_model_complete) + " | " + "steps cm: " +
               str(iteration) + " | " + "excluded members cm: " + str(
             int(excluded_members_complete_model)) + " | Episode reward ptm: " + str(
-            episode_reward_model_pretraining) + " | " + "steps cm: " +
-              str(iteration) + " | " + "excluded members cm: " + str(
+            episode_reward_model_pretraining) + " | " + " | " + "excluded members ptm: " + str(
             int(excluded_members_pretraining_model)) + " | Episode reward dn agent: " + str(episode_reward_dn_agent))
         episode_reward_all_model_complete[i] = episode_reward_model_complete
         episode_reward_all_model_pretraining[i] = episode_reward_model_pretraining
@@ -108,10 +109,11 @@ def compare_model_random_agent():
     make_figure_reward_iteration(np.mean(all_discounted_rewards_dn_agent, axis=1),
                                  np.mean(all_discounted_rewards_model_complete, axis=1),
                                  np.mean(all_discounted_rewards_model_pretraining, axis=1), "random_agent",
-                                "model_complete", "model_pretraaining_only")
+                                 "model_complete", "model_pretraaining_only")
 
 
-def make_figure_reward_iteration(rewards1, rewards2, rewards3, label1, label2, label3, iterations=args.max_iterations,):
+def make_figure_reward_iteration(rewards1, rewards2, rewards3, label1, label2, label3,
+                                 iterations=args.max_iterations, ):
     optimum = np.zeros((iterations,))
     reward = 0
     for i in range(iterations):
@@ -125,9 +127,44 @@ def make_figure_reward_iteration(rewards1, rewards2, rewards3, label1, label2, l
     plt.xlabel("iteration")
     plt.ylabel("discounted reward")
     plt.legend()
+    plt.savefig(args.save_dir + "/reward_per_iteration.png")
     plt.show()
-    plt.savefig(args.save_dir + "/reward_per_iteration")
+
+def analize_pretrained_agent():
+    initial_noise_variance = 0.02
+
+    env = SN_Env(args.numb_nodes, args.connectivity, args.numb_sources_true, args.numb_sources_false,
+                 args.max_iterations, playing=True, display_statistics=False,
+                 initial_noise_variance=args.initial_noise_variance)
+
+    discounted_rewards_model_pretraining = np.zeros(play_iterations, )
+    mses = np.zeros(play_iterations, )
+
+    for i in range(play_iterations):
+        # Play with pretraining only agent
+        iteration = 0
+        episode_reward_model_pretraining = 0
+        done = False
+        obs = env.reset()
+        mse = 0
+        while not done:
+            action, _states = model_pretraining.predict(obs)
+            action_opt = get_optimal_action(env)
+            mse += (np.square(action - action_opt)).mean(axis=None)
+            obs, rewards, done, info = env.step(action)
+            episode_reward_model_pretraining = episode_reward_model_pretraining + rewards * gamma ** iteration
+            iteration += 1
+        mse = mse / iteration
+        mses[i] = mse
+        discounted_rewards_model_pretraining[i] = episode_reward_model_pretraining
+        print("Iteration " + str(i + 1) + "/" + str(play_iterations) + " | MSE: " + str(
+            mse) + " | reward pretrained model: " + str(
+            episode_reward_model_pretraining) + " | excluded members: " + str(env.excluded_members))
+    print("Done! Final statistics:")
+    print("Average mse: " + str(np.mean(mses)) + " | average discounted rewards: " + str(
+        np.mean(discounted_rewards_model_pretraining)))
 
 
 if __name__ == '__main__':
     compare_model_random_agent()
+    # analize_pretrained_agent()

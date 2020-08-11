@@ -27,25 +27,21 @@ class Statistics:
         self.ep_variance_exclusions = np.var(final_exclusion_numbers)
 
     def print_statistics(self):
-        print("")
-        print("")
-        print("-------------------------------")
+        print("\n\n-------------------------------")
         print("Exclusion Statistics:")
         print("Total iterations " + str(self.iteration) + " | " + "Moving avg exclusions: " + str(
             self.moving_avg_exclusions) + " | " + "Ep exclusions avg: " + str(
             self.ep_avg_exclusion) + " | " + "Ep min exclusions: " + str(
             self.ep_min_exclusions) + " | " + "Ep max exclusions: " + str(
             self.ep_max_exclusions) + " | " + "Ep exclusions variance: " + str(self.ep_variance_exclusions))
-        print("-------------------------------")
-        print("")
-        print("")
+        print("-------------------------------\n\n")
 
 
 class SN_Env(gym.Env):
     metadata = {'render.modes': ['human']}
 
     def __init__(self, numb_nodes, connectivity, numb_sources_true, numb_sources_false, max_iterations=30,
-                 excluding_decision_boundary=0.1, playing=False, display_statistics=True,
+                 excluding_decision_boundary=0.1, initial_noise_variance=0.05, playing=False, display_statistics=True,
                  training_statistics_interval=100):
 
         super(SN_Env, self).__init__()
@@ -63,6 +59,7 @@ class SN_Env(gym.Env):
         self.connectivity = connectivity
         self.excluded_members_array = np.zeros((numb_nodes,))
         self.state = np.zeros((numb_nodes,))
+        self.initial_noise_variance = initial_noise_variance
 
         # define reward variables
         self.playing = playing
@@ -167,8 +164,8 @@ class SN_Env(gym.Env):
         # create trust in sources
         trust_in_sources_nn = np.zeros((self.numb_nodes, self.sources.shape[0]))
 
-        trust_in_sources_nn[:, 0:3] = np.random.random((self.numb_nodes, 3))  # trust in 3 sources
-        self.initial_noise = np.random.normal(0, 0.1, self.numb_nodes)
+        trust_in_sources_nn[:, 0] = np.random.random((self.numb_nodes,))  # trust in 1 sources
+        self.initial_noise = np.random.normal(0, self.initial_noise_variance, self.numb_nodes)
 
         [np.random.shuffle(x) for x in trust_in_sources_nn]
 
@@ -182,6 +179,7 @@ class SN_Env(gym.Env):
         self.state = np.zeros((self.numb_nodes,))
         self.state = np.dot(self.trust_in_sources, self.sources)
         self.state += + self.initial_noise  # Add noise to initial state
+        self.state = np.clip(self.state, 0, 1)
 
         self.excluded_members = 0
         self.excluded_members_array = np.zeros((self.numb_nodes,), dtype=np.int32)
