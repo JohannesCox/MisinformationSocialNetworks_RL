@@ -3,13 +3,13 @@ import json
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-from stable_baselines import A2C, PPO1
+from stable_baselines import A2C
 
 from A2C_Train import NetworkParameters
 from Create_Pretraining_Dataset import get_optimal_action
 from SocialNetwork import SN_Env
 
-save_dir = "logs/A2C_9t_1f_100nodes_MLP_10iter_v2/"
+save_dir = "logs/A2C_3t_7f_100nodes_MLP_10iter_v1/"
 play_iterations = 300
 gamma = 0.99
 policy_kwargs = dict(net_arch=[1024, 1024, 1024, dict(vf=[1024, 512], pi=[1024, 1024, 512])], act_fun=tf.nn.tanh)
@@ -130,6 +130,7 @@ def make_figure_reward_iteration(rewards1, rewards2, rewards3, label1, label2, l
     plt.savefig(args.save_dir + "/reward_per_iteration.png")
     plt.show()
 
+
 def analize_pretrained_agent():
     initial_noise_variance = 0.02
 
@@ -165,6 +166,54 @@ def analize_pretrained_agent():
         np.mean(discounted_rewards_model_pretraining)))
 
 
+def compare_randomagent_donothingagent():
+    seed_random = np.random.randint(1, 1000)
+    dn_agent = DoNothingAgent()
+    dnA_rewards_ratios = np.zeros((9,))
+    randomA_rewards_ratios = np.zeros((9,))
+
+    for i in range(9):
+        env = SN_Env(args.numb_nodes, args.connectivity, i + 1, 10 - 1 - i,
+                     args.max_iterations, playing=True, display_statistics=False,
+                     initial_noise_variance=args.initial_noise_variance)
+
+        discounted_rewards_random = np.zeros((play_iterations,))
+        discounted_rewards_dnA = np.zeros((play_iterations,))
+
+        for j in range(play_iterations):
+            # Play with do nothing agent
+            env.reset(True, j * seed_random)
+            single_discounted_reward_random, _ = dn_agent.play(env)
+            discounted_rewards_dnA[j] = single_discounted_reward_random
+
+            # Play with random agent
+            obs = env.reset(True, j * seed_random)
+            episode_reward_random_agent = 0
+            iteration = 0
+            done = False
+            while not done:
+                action = np.random.random(size=(args.numb_nodes,))
+                obs, rewards, done, info = env.step(action)
+                episode_reward_random_agent = episode_reward_random_agent + rewards * gamma ** iteration
+                iteration += 1
+            discounted_rewards_random[j] = episode_reward_random_agent
+
+        dnA_rewards_ratios[i] = np.mean(discounted_rewards_dnA)
+        randomA_rewards_ratios[i] = np.mean(discounted_rewards_random)
+
+    # visualize results
+    x = np.arange(10, 100, 10)
+    plt.figure()
+    plt.plot(x, dnA_rewards_ratios, label="do-nothing agent")
+    plt.plot(x, randomA_rewards_ratios, label="random agent")
+    plt.xlabel("percent true sources")
+    plt.ylabel("discounted rewards")
+    plt.legend()
+    plt.savefig("comp_dnA_randomA.png")
+    plt.show()
+
+
 if __name__ == '__main__':
     compare_model_random_agent()
     # analize_pretrained_agent()
+    # compare_randomagent_donothingagent()
