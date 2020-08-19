@@ -43,6 +43,19 @@ class SN_Env(gym.Env):
     def __init__(self, numb_nodes, connectivity, numb_sources_true, numb_sources_false, max_iterations=30,
                  excluding_decision_boundary=0.1, initial_noise_variance=0.05, playing=False, display_statistics=True,
                  training_statistics_interval=100):
+        '''
+        :param numb_nodes: Number of network nodes.
+        :param connectivity: Connectivity between nodes for a Gilbert graph. Should be a value in (0,1]
+        :param numb_sources_true: Number of sources with true belief value.
+        :param numb_sources_false: Number of sources with a (random) false belief value.
+        :param max_iterations: Maximum amount of iterations.
+        :param excluding_decision_boundary: Trust value threshold below which nodes of the network are excluded.
+        :param initial_noise_variance: Variance of gaussian white noise for the source factor.
+        :param playing: Indicates whether the environment is used for training or playing/testing.
+        :param display_statistics: Whether statistics about how many nodes are excluded should be shown.
+        :param training_statistics_interval: If display_statistics=True this parameter defines how often statistics
+            should be printed
+        '''
 
         super(SN_Env, self).__init__()
 
@@ -75,7 +88,11 @@ class SN_Env(gym.Env):
         self._set_up_network()
 
     def step(self, action_box):
-        # Execute one time step within the environment
+        '''
+        Execute one time step within the environment
+        :param action_box: Action has to be of size (numb_nodes,) and each value has to be in [0,1].
+        :return: Iteration reward.
+        '''
 
         def hard_desc(x): return 1 if x < self.excluding_decision_boundary else 0
 
@@ -125,7 +142,12 @@ class SN_Env(gym.Env):
         return return_state, reward, done, {}
 
     def reset(self, set_seed=False, seed=0):
-        # Reset the state of the environment to an initial state
+        '''
+        Reset the state of the environment to an initial state.
+        :param set_seed: Whether random see should be used or not.
+        :param seed: If set_seed=True a seed can be set with this parameter.
+        :return:
+        '''
         if set_seed:
             np.random.seed(seed)
         else:
@@ -146,7 +168,6 @@ class SN_Env(gym.Env):
         print(f'Error: {np.abs(estimated_value - self.sources_true_value)}')
 
     def _set_up_network(self):
-
         # update and print statistics
         if self.display_statistics and self.ep_training_iterations > 0 and (
                 self.ep_training_iterations % self.training_statistics_interval) == 0:
@@ -163,10 +184,8 @@ class SN_Env(gym.Env):
 
         # create trust in sources
         trust_in_sources_nn = np.zeros((self.numb_nodes, self.sources.shape[0]))
-
         trust_in_sources_nn[:, 0] = np.random.random((self.numb_nodes,))  # trust in 1 sources
         self.initial_noise = np.random.normal(0, self.initial_noise_variance, self.numb_nodes)
-
         [np.random.shuffle(x) for x in trust_in_sources_nn]
 
         # normalize trust in sources
@@ -210,7 +229,7 @@ class SN_Env(gym.Env):
         # Combine the two factors
         new_observation = network_factor + source_factor
 
-        # in case a member has no neighbours left
+        # in case a member has no neighbours left belief value remains constant
         new_observation[sum_over_edges == 0] = old_state[sum_over_edges == 0]
         new_observation[action_boolean] = -1  # set excluded members to value -1
 
