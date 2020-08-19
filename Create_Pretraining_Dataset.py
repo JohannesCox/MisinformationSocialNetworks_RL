@@ -1,10 +1,11 @@
-# This is based on the record_expert.py file of stable baseline!
-
 import numpy as np
 import sys
 from typing import Dict
 
 
+# Please note: this method is based on the record_expert.py script of stable-baselines!
+
+# This method creates a dataset where the decisions of an expert is recorded.
 def generate_pretraining_dataset(env, episodes, save_path):
 
     print("Create pretraining dataset...")
