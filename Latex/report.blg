@@ -4,46 +4,47 @@ The top-level auxiliary file: report.aux
 The style file: plain.bst
 Database file #1: references.bib
 Warning--entry type for "rl_gnn2" isn't style-file defined
---line 423 of file references.bib
-You've used 28 entries,
+--line 402 of file references.bib
+Warning--empty publisher in PropagandaAnalysis1
+You've used 33 entries,
             2118 wiz_defined-function locations,
-            666 strings with 9424 characters,
-and the built_in function-call counts, 10127 in all, are:
-= -- 937
-> -- 675
-< -- 3
-+ -- 268
-- -- 236
-* -- 756
-:= -- 1766
-add.period$ -- 85
-call.type$ -- 28
-change.case$ -- 200
+            693 strings with 10308 characters,
+and the built_in function-call counts, 11620 in all, are:
+= -- 1072
+> -- 735
+< -- 6
++ -- 293
+- -- 256
+* -- 833
+:= -- 1998
+add.period$ -- 98
+call.type$ -- 33
+change.case$ -- 226
 chr.to.int$ -- 0
-cite$ -- 28
-duplicate$ -- 313
-empty$ -- 656
-format.name$ -- 236
-if$ -- 2050
+cite$ -- 34
+duplicate$ -- 387
+empty$ -- 789
+format.name$ -- 256
+if$ -- 2386
 int.to.chr$ -- 0
-int.to.str$ -- 28
-missing$ -- 22
-newline$ -- 142
-num.names$ -- 58
-pop$ -- 193
+int.to.str$ -- 33
+missing$ -- 27
+newline$ -- 166
+num.names$ -- 66
+pop$ -- 236
 preamble$ -- 1
-purify$ -- 172
+purify$ -- 194
 quote$ -- 0
-skip$ -- 257
+skip$ -- 320
 stack$ -- 0
-substring$ -- 432
-swap$ -- 62
-text.length$ -- 3
+substring$ -- 476
+swap$ -- 86
+text.length$ -- 6
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 112
-warning$ -- 0
-while$ -- 73
-width$ -- 30
-write$ -- 305
-(There was 1 warning)
+type$ -- 130
+warning$ -- 1
+while$ -- 86
+width$ -- 35
+write$ -- 355
+(There were 2 warnings)

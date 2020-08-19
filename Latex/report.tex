@@ -25,6 +25,9 @@
 \maketitle
 
 \section{Introduction}
+The spread of misinformation in social networks has increasingly become a challenge for modern societies. Online social networks have risen in popularity in recent years and while they can be very useful to spread news quickly they can also be misused to spread misinformation. As online social networks will remain widely used in the foreseeable future it is important to automatically detect and prevent the spread of misinformation. A lot of related research has been done in recent years like detecting misinformation in online social networks \cite{DetectMisinformation1, DetectMisinformation2, DetectMisinformation3, DetectMisinformation4} or the analysis of propaganda campaigns in social networks \cite{PropagandaAnalysis1, PropagandaAnalysis2, PropagandaAnalysis3}.\newline
+This work introduces a new social network model which is based on naive learning. Naive learning in social networks is a simple learning strategy where members of the network update their own beliefs by taking a weighted sum of their neighbors beliefs in each iteration \cite{NaiveLearning1,NaiveLearning2,NaiveLearning3}. This procedure is extended in this work by adding external sources that also influence the beliefs of the network members. These sources can either propagate a noisy true value or a false value. Thus, misinformation will spread through the social network. Those external sources can be interpreted as media channels as well as bot networks where multiple members in the network only propagate the belief value of one specific false source. This model is transformed into a reinforcement learning environment which is then used to train an agent to detect members of the network who spread misinformation. The agent has to assign trust values to each member of the social network which describe how trustworthy the belief value of that specific network member is. Members with very low trust values are excluded from the network. The agent is trained with the state of the art reinforcement learning method advantage actor-critic (A2C) \cite{A2C_1, A2C_3} which is a synchronous and deterministic variant of Asynchronous Advantage Actor Critic (A3C) \cite{A3C_1}. The trained agent succeeds to decrease the amount of misinformation even for a high amount of false sources. However, the agent fails to learn an optimal strategy.\newline
+This work is structured as follows: in section \ref{sec:SN} the social network model is introduced and in section \ref{sec:SN_RLEnv} this model is transformed into a reinforcement learning environment by defining an action and observation space as well as a reward function. In section \ref{sec:A2C} the A2C method is explained and how A2C can be used to train an agent in the social network environment. The results for different ratios of true and false sources are presented and discussed in section \ref{sec:results}. Finally, the conclusions of this work are given.
 
 \section{Modeling the Social Network} \label{sec:SN}
 The social network contains a finite set of members $\mathbb{V}$ with $|\mathbb{V}| = N$. Each member has a belief at time $t$, the beliefs of all members at time $t$ is defined as $\vec{b}(t)$. Each belief is in the range $[0,1]$, that is 
@@ -50,7 +53,7 @@ The second factor is called source factor and describes the influence of externa
 	\vec{b}_\text{source} = \matr{T} \vec{s}+\eta
 \end{equation}
 %
-where $\vec{s}$ includes all external sources with $\vec{s}_i \in [0,1]$ and $\matr{T}_{ij}$ corresponds to how much a person $i$ trusts a source $j$. Gaussian white noise is added with the term $\eta \sim \mathcal{N}(0,\sigma)$. Matrix $\matr{T}$ is also a stochastic matrix. Note that the source factor is constant over all iterations. It is assumed that there are sources that propagate a true belief value $s_T \in [0,1]$ and sources that propagate a random false belief value $s_F$. The true source value $s_T$ is drawn by a uniform distribution within the interval $[0,1]$ and the false source values are drawn by a uniform distribution within the intervals $[0, s_T-0.3]$ and $[s_T+0.3,1]$. This guarantees that the false sources propagate a belief value that deviates from the true value by at least $0.3$. For simplicity it is assumed that every member of the network only has a nonzero trust value to one external source.\newline
+where $\vec{s}$ includes all external sources with $\vec{s}_i \in [0,1]$ and $\matr{T}_{ij}$ corresponds to how much a person $i$ trusts a source $j$. Gaussian white noise is added with the term $\eta \sim \mathcal{N}(0,\sigma)$. Matrix $\matr{T}$ is also a stochastic matrix. Note that the source factor is constant over all iterations. It is assumed that there are sources that propagate a true belief value $s_T \in [0,1]$ and sources that propagate a random false belief value $s_F$. A prerequisite of this work is that it is possible to determine a true value $s_T$ which might not be the case in all real-life applications. The true source value $s_T$ is drawn by a uniform distribution within the interval $[0,1]$ and the false source values are drawn by a uniform distribution within the intervals $[0, s_T-0.3]$ and $[s_T+0.3,1]$. This guarantees that the false sources propagate a belief value that deviates from the true value by at least $0.3$. This is done to make the initialization of the network more predictable as no false sources randomly become true sources. For simplicity it is assumed that every member of the network only has a nonzero trust value to exactly one external source.\newline
 
 The belief vector $\vec{b}(t)$ at iteration $t$ can thus be calculated as
 %
@@ -76,7 +79,7 @@ At each iteration the agent has to determine how much the belief of each social 
 Defining the action space in a continuous way allows to not only determine wether a member of the social network is trustworthy or not but also to what degree. As a downside this leads to a large action space which makes it more challenging to train an agent with reinforcement learning \cite{large_action_2,large_action_1}.
 
 \subsection{Reward Function}
-Finding a suitable reward function is a crucial challenge in most reinforcement learning applications \cite{reward_design_1,reward_design_2}. The reward function has to precisely define the goal the agent should achieve. Furthermore, the design of the reward function is an important component to prevent getting stuck in local minima during training. \newline
+Finding a suitable reward function is a crucial challenge in many reinforcement learning applications \cite{rlblogpost}. The reward function has to precisely define the goal the agent should achieve. Furthermore, the design of the reward function is an important component to prevent getting stuck in local maxima during training. \newline
 We want to determine the level of misinformation for each member in the network while also excluding members who spread misinformation to a high degree such that the average belief in the network can converge to the true source value $s_T$ similar to naive learning \cite{NaiveLearning1}. The following term defines the estimated true source value $\overline{s}_{\text{est}}$ where the belief values of all non-excluded members $\vec{b}_{\text{active}}(t)$ is scaled by the trust given by action $a(t)$.
 %
 \begin{equation} \label{equ:s_est}
@@ -99,11 +102,11 @@ The environment then returns a reward based on how far this estimated source val
 	\caption{\label{fig:reward_func}Iteration step reward based on the difference between estimated and true source value.}
 \end{wrapfigure}
 %
-Thus, the rewards are in the interval $[0,1]$. As you can see in fig. (\ref{fig:reward_func}) the reward decreases linearly based on the difference between the estimated and the real true source value. If the difference is larger than $0.5$ or all members of the network are excluded the reward is $0$. Note that there is no punishment for excluding members from the social network. Therefore, a solution with a lot of exclusions might still be considered good independent from wether the exclusions were justified or not. Although this might be problematic in some real world applications minimizing the number of exclusions is not in the scope of this work. \newline
+Thus, the returned rewards are in the interval $[0,1]$ for each iteration. As you can see in figure \ref{fig:reward_func} the reward decreases linearly based on the difference between the estimated and the real true source value. If the difference is larger than $0.5$ or all members of the network are excluded the reward is $0$. Note that there is no punishment for excluding members from the social network. Therefore, a solution with a lot of exclusions might still be considered good independent from wether the exclusions were justified or not. Although this might be problematic in some real world applications minimizing the number of exclusions is not in the scope of this work. \newline
 
-The social network environment as described in section (\ref{sec:SN}) and (\ref{sec:SN_RLEnv}) was implemented as an OpenAI Gym \cite{gym} environment which yields the advantage of making the implementation compatible with many reinforcement learning frameworks.
+The social network environment as described in section \ref{sec:SN} and \ref{sec:SN_RLEnv} was implemented as an OpenAI Gym \cite{gym} environment which yields the advantage of making the implementation compatible with many reinforcement learning frameworks.
 
-\section{Training an agent with A2C}
+\section{Training an agent with A2C} \label{sec:A2C}
 Advantage Actor Critic (A2C) \cite{A2C_1} is a synchronous and deterministic variant of Asynchronous Advantage Actor Critic (A3C) \cite{A3C_1,A3C_2}. The idea of A3C is to train multiple workers simultaneously which all have an own version of a global network. Each worker has an own set of the network parameters and trains them separately on different copies of the environment. The workers then update the global network in an asynchronous way. This yields the advantage of having workers explore different regions of the environment which leads to more stable results. A2C doesn't asynchronously update the workers but instead waits until all workers are finished with their exploration step. The global model is then updated by averaging over all workers. This means that their is only one version of network parameters but each worker has an own environment to train on. While A3C has the advantage of fast training on CPU-based implementations \cite{A3C_1} - as each worker can run in a separate thread - A2C performs better with larger batch sizes and is thus better suited for GPU-based implementations. According to an OpenAI block post A2C yields more stable results than A3C \cite{A2C_3}. A2C is well suited for the introduced social network environment as it can handle large, continuous action and observation spaces \cite{A2C_1}. I used the stable baseline \cite{stable-baselines} implementation of A2C to train an agent with the environment introduced in the previous section. \newline
 The next section gives a more detailed description of the Advantage Actor Critic method.
 
@@ -130,13 +133,13 @@ The state value function is defined as the expected sum of future rewards given 
 	V^{\pi}(x_0)=\mathbb{E}[\sum_{t=0}^{\infty}\gamma^tr(x_t,a_t)|a_t\sim\pi_t]
 \end{equation}
 %
-It is also called V value. In contrast to that the state-action value function or Q-value is directly dependent on a given action $a$ instead of sampling $a$ from a policy $\pi$. The state-action value function can be defined as 
+In contrast to that the state-action value function or Q-value is directly dependent on a given action $a$ instead of sampling $a$ from a policy $\pi$. The state-action value function can be defined as 
 %
 \begin{equation}
 \begin{split}
 	Q^\pi(x_i,a_i) 
 		& =\mathbb{E}[r(x_i,a_i)+\gamma V^{\pi}(x_{i+1})] \\
-		& =\mathbb{E}[\sum_{t=0}^{T} \gamma^t r(x_t,a_t)| x_0=x_i, a_0=a_i, a_{t+1} \sim \pi_{\theta}]
+		& =\mathbb{E}[\sum_{t=0}^{T} \gamma^t r(x_t,a_t)| a_0=a_i, a_{t+1} \sim \pi_{\theta}]
 \end{split}
 \end{equation}
 %
@@ -178,7 +181,7 @@ As mentioned before both the actor and the critic are parameterized with neural 
 \end{wrapfigure}
 %
 
-Another idea is to use long short-term memory (LSTM) networks in order to account for the time dependency between two consecutively states. I found that for this scenario LSTM networks don't yield better results but need much longer to train. Therefore, I decided to use fully connected multilayer perceptrons (MLPs). The layer structure for a social network with 100 nodes and 10 external sources is shown in figure (\ref{fig:NN_arch}). The actor and critic share the first 3 layers. This reduces the training time as fewer parameters have to be trained. It also leads to more stable results as in the first 3 layers a good generalization of the input has to be learned as the output is used to calculate both the value function as well as the policy. During the tuning of the network parameters I found that for this scenario multiple layers work better than fewer layers with more nodes. The $\tanh$ function is used as an activation function in order to address the vanishing gradient problem. The optimizer used in the stable-baselines implementation of A2C is RMSprop \cite{RMSprop}.
+Another idea is to use long short-term memory (LSTM) networks in order to account for the time dependency between two consecutively states. I found that for this scenario LSTM networks don't yield better results but need much longer to train. Therefore, I decided to use fully connected multilayer perceptrons (MLPs). The layer structure for a social network with 100 nodes and 10 external sources is shown in figure \ref{fig:NN_arch}. The actor and critic share the first 3 layers. This reduces the training time as fewer parameters have to be trained. It also leads to more stable results as in the first 3 layers a good generalization of the input has to be learned as the output is used to calculate both the value function as well as the policy. During the tuning of the network parameters I found that for this scenario multiple layers work better than fewer layers with more nodes. The $\tanh$ function is used as an activation function in order to address the vanishing gradient problem. The optimizer used in the stable-baselines implementation of A2C is RMSprop \cite{RMSprop}.
 
 \subsection{Pre-Training}
 Achieving convergence to an optimal solution is often hard in reinforcement learning \cite{rlblogpost}. Pre-training the agent was a crucial part in this work in order to achieve good results. Pre-training in the context of reinforcement learning is basically training the actor in a supervised fashion with a dataset created by an expert. In this scenario the action of this expert for each node $i$ at time $t$ is defined as
@@ -194,15 +197,23 @@ Achieving convergence to an optimal solution is often hard in reinforcement lear
 Note that in contrast to the reinforcement learning agent this expert has knowledge of the true source value $s_T$. During the pre-training phase first a dataset is created where the expert agent interacts with the environment. Then the actor is trained with those state-action pairs in a supervised fashion. The critic is not trained during this phase but it indirectly benefits due to the 3 shared layers. The purpose of the pre-training phase is to give a better initialization of the network parameters in order to get better and more stable results. A deeper analysis of the effect of the pre-training phase can be found in the next section.
 
 
-\section{Results}
-In this chapter a social network with 100 nodes, 10 external sources and a connectivity of $p_c=0.1$ run for 10 iterations is evaluated. Although a social network with 100 nodes might seem small it wasn't possible for me to scale up the nodes further due to limited hardware resources. The discount factor for rewards is $\gamma=0.99$. In order to evaluate the performance of the reinforcement learning agent a do-nothing agent is used as a baseline. This agent doesn't excluded any members of the network and just gives every node full trust. Note that due to the normalization in equation (\ref{equ:s_est}) the exact trust value doesn't influence the rewards as long as the agent gives every node the same trust and doesn't exclude any node. This agent has the same performance as an agent that assigns random trust values without excluding all members of the network. \newline
-In the following sections an agent is pre-trained on 600k samples and then A2C is run for 5 millions total iterations.
+\section{Results} \label{sec:results}
+In this chapter a social network is evaluated which has 100 nodes, 10 external sources, a connectivity of $p_c=0.1$ and is run for 10 iterations in each episode. Although a social network with 100 nodes might seem small it wasn't possible for me to scale up the nodes further due to limited hardware resources. The discount factor for rewards is $\gamma=0.99$. In order to evaluate the performance of the reinforcement learning agent a do-nothing agent is used as a baseline. This agent doesn't excluded any members of the network and just gives every node full trust. Note that due to the normalization in equation (\ref{equ:s_est}) the exact trust value doesn't influence the rewards as long as the agent gives every node the same trust and doesn't exclude any node.
+
+\begin{figure}[h] 
+	\centering
+	\includegraphics[width=0.5\textwidth]{comp_dnA_randomA.png} 
+	\caption{\label{fig:comp_dnA_randomA} Comparison of discounted episode rewards between an agent that randomly chooses actions on the interval $[0,1]^{100}$ and the do-nothing agent for different ratios of true and false sources. Mean value over 300 episodes is taken.}
+\end{figure}
+
+This agent has the same average performance as an agent that assigns random trust values without excluding all members of the network as you can see in figure \ref{fig:comp_dnA_randomA}. \newline
+In the following sections an agent is pre-trained on 600k samples and then A2C is run for 5 million total iterations.
 
 \subsection{Performance for varying Levels of Misinformation}
-In this section the performance of the agent is evaluated for different levels of misinformation in the network, that is a different ratio of true and false sources. You can find the results for the baseline do-nothing agent the pre-trained model without reinforcement learning and the fully trained model in table \ref{tab:perf_1}. All 3 agents are run 300 times over different initializations of the environment. Thereby the environments are initialized with the same seed for all 3 agents as there is quiet a high variance between multiple runs.
+In this section the performance of the agent is evaluated for different levels of misinformation in the network, that is a different ratio of true and false sources. For each ratio a separate agent was trained. You can find the results for the baseline do-nothing agent, the pre-training only model without reinforcement learning and the fully trained model in table \ref{tab:perf_1}. All 3 agents are run 300 times over different initializations of the environment. Thereby the environments are initialized with the same seed for all 3 agents as there is quiet a high variance between multiple runs.
 
 \begin{center} \label{tab:perf_1} 
-	\scalebox{0.88}{
+	\scalebox{0.8}{
 	\begin{tabular}{ m{6em} | m{5em} | m{5em} | m{5em}}
 								   & do-nothing agent & pre-training only & complete model \\
 								   \hline
@@ -224,7 +235,7 @@ In this section the performance of the agent is evaluated for different levels o
 		\hline
 		9 true and 1 false source  & 8.43			  &	8.70			  & 8.69
 	\end{tabular}} 
-	\captionof{table}{Discounted rewards for the baseline do-nothing agent, the pre-trained model and the fully trained, complete model for different ratio of true and false sources. Mean value over 300 runs.}
+	\captionof{table}{Discounted episode rewards for the baseline do-nothing agent, the pre-trained model and the fully trained, complete model for different ratios of true and false sources. Mean values over 300 runs are taken.}
 \end{center}
 
 As you can see the fully trained model performance better for all ratios of false and true sources. The maximum possible reward for each run is 
@@ -236,18 +247,18 @@ as the maximum reward for each iteration is $1$. In figure \ref{fig:per_cm} the 
 \begin{figure}[h] 
 	\centering
 	\includegraphics[width=0.55\textwidth]{perf_cm.png} 
-	\caption{\label{fig:per_cm} Comparison between the fully trained model and the do-nothing agent for different ratios of true and false sources.}
+	\caption{\label{fig:per_cm} Comparison of discounted episode rewards between the fully trained model and the do-nothing agent for different ratios of true and false sources.}
 \end{figure}
 
-Although the fully trained model outperforms the do-nothing agent for all ratios of misinformation the total discounted rewards decrease linearly for both agents for an increasing amount of false sources. The difference between the two agents remains roughly at $1$. In order to understand how it is even possible for the fully trained agent to get a better performance for the case with only $1$ true source one has to keep in mind that $|s_\text{true}-s_\text{false}| > 0.3$ for all false sources. This means that for few false sources the agent has to assign low trust values to nodes with outlier belief values and in the case of few true sources the agent has to assign high trust values to nodes with outlier belief values. This type of outlier detection becomes harder for the case of a majority of false sources as the false sources have different belief values. This might be one reason why the rewards decrease for a higher percentage of ratio sources. The constant difference between do-nothing agent and fully trained agent also indicates that the fully trained agent cannot fully minimize the spread of misinformation but rather decreases it by the same degree for different ratio of true and false sources. A deeper analysis of the behavior of the agent can be found in section \ref{sec:res_behavior}. \newline
+Although the fully trained model outperforms the do-nothing agent for all ratios of misinformation the total discounted rewards decrease linearly for both agents for an increasing amount of false sources. The difference between the two agents remains roughly at $1$. In order to understand how it is even possible for the fully trained agent to get a better performance for the case with only $1$ true source one has to keep in mind that $|s_\text{true}-s_\text{false}| > 0.3$ for all false sources. This means that for few false sources the agent has to assign low trust values to nodes with outlier belief values and in the case of few true sources the agent has to assign high trust values to nodes with outlier belief values. This type of outlier detection becomes harder for the case of a majority of false sources as the false sources have different belief values. This might be one reason why the rewards decrease for a higher percentage of ratio sources. The constant difference between do-nothing agent and fully trained agent also indicates that the fully trained agent cannot fully minimize the spread of misinformation but rather decreases it by the same degree for different ratios of true and false sources. A deeper analysis of the behavior of the agent can be found in section \ref{sec:res_behavior}. \newline
 
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.55\textwidth]{dif_cm-pto.png}
-	\caption{\label{fig:dif_cm-pto} Difference between pre-trained model and fully trained model for different ratio of false and true sources.}
+	\caption{\label{fig:dif_cm-pto} Difference in discounted episode rewards between pre-trained model and fully trained model for different ratio of false and true sources.}
 \end{figure}
 
-In figure \ref{fig:dif_cm-pto} you can find the difference between pre-trained and fully trained model. As you can see the fully trained model performs significantly better than the only pre-trained model for 7 out of 10 ratios. For 3 out of 10 ratios the two models almost performed the same, meaning that the reinforcement learning part didn't increase the returned rewards. The difference between the two model and the ratio between true and false sources doesn't seem to correlate. This indicates that the agent gets stuck in local maxima.
+In figure \ref{fig:dif_cm-pto} you can find the difference between the pre-trained and the fully trained model. As you can see the fully trained model performs significantly better than the only pre-trained model for 7 out of 10 ratios. For 3 out of 10 ratios the two models almost performed the same, meaning that the reinforcement learning part didn't increase the returned rewards. The difference between the two model and the ratio between true and false sources doesn't seem to correlate. This indicates that the agent gets stuck in local maxima.
 
 \subsection{Behavior of Trained Agent} \label{sec:res_behavior}
 In this section the behavior of the fully trained agent is investigated by looking at what action the agent chooses for certain observations. The observation action pair for 7 true and 3 false sources for the first 10 nodes are shown in figure \ref{fig:act-obs_7t3f}.
@@ -263,10 +274,10 @@ In this section the behavior of the fully trained agent is investigated by looki
 		\includegraphics[width=.85\linewidth]{7t3f_action_iter1_hc.png}  
 		\caption{Action for first 10 nodes.}
 	\end{subfigure}
-	\caption{\label{fig:act-obs_7t3f}First part of observation and corresponding action of the fully trained agent. There are 7 true and 3 false sources. This observation was created in the first iteration. Only the first 10 of 100 values are shown.}
+	\caption{\label{fig:act-obs_7t3f}First part of an observation and corresponding action of the fully trained agent. There are 7 true and 3 false sources. This observation was created in the first iteration. Only the first 10 of 100 values are shown.}
 \end{figure}
 
-As you can see do nodes at index 4 and 7 propagate the belief value of a false source, node 9 propagates the belief value of a different false source and the remaining nodes propagate the belief of the true source. The agent correctly assigns the lowest trust values to the 3 nodes that propagate false belief values but it doesn't exclude the nodes. The nodes that propagate true belief values all get maximum trust values with the exception of node 2 that incomprehensibly also gets a relative low trust value. This example illustrates that the behavior of the agent goes into the right direction but is not fully optimal. This again indicates convergence to a local maxima. \newline
+The nodes at index 4 and 7 propagate the belief value of a false source, node 9 propagates the belief value of a different false source and the remaining nodes propagate the noisy belief of a true source. The agent correctly assigns the lowest trust values to the 3 nodes that propagate false belief values but it doesn't exclude the nodes. The nodes that propagate true belief values all get maximum trust values with the exception of node 2 that incomprehensibly also gets a relatively low trust value. This example illustrates that the behavior of the agent goes into the right direction but is not fully optimal. This again indicates convergence to a local maxima. \newline
 
 The next example in figure \ref{fig:act-obs_3t7f} shows the observation action pairs for 7 false and 3 true sources for 2 iterations. The true source value is $s_T = 0.10$.
 
@@ -298,41 +309,47 @@ The next example in figure \ref{fig:act-obs_3t7f} shows the observation action p
 	\caption{\label{fig:act-obs_3t7f}Observation and corresponding action for 2 iterations. There are 7 false and 3 true sources. The true source value is $s_T=0.10$.}
 \end{figure}
 
-As you can see nodes with indices 1,3 and 6 propagate true belief values and the other nodes propagate false belief values. The agent excludes nodes 2,5,7 and 8 from the network. All those nodes propagate false belief values. Besides that nodes with true and false source values get high and low trust values. Nodes 2,4,7,8 and 9 all propagate a false belief value close to $1$ but while nodes 2,7 and 9 get excluded from the network nodes 4 and 8 surprisingly get a high trust value. In the observation for the next iteration in figure \ref{fig:3t7f_obs_iter2} it is possible to see that misinformation leaked into the network. From the 3 nodes that propagated true belief values in the previous iteration only one (node 1) still has a belief value that is close to the true one. Especially node 6 heavily changed its belief value. The action of the agent looks rather random. Note that the belief value for excluded nodes has no influence. \newline
+As you can see nodes with indices 1,3 and 6 propagate true belief values and the other nodes propagate false belief values. The agent excludes nodes 2,5,7 and 8 from the network. All those nodes propagate false belief values. Besides that nodes with true and false source values get high and low trust values. Nodes 2,4,7,8 and 9 all propagate a false belief value close to $1$ but while nodes 2,7 and 9 get excluded from the network nodes 4 and 8 surprisingly get a high trust value. In the observation for the next iteration in figure \ref{fig:3t7f_obs_iter2} it is possible to see that misinformation leaked into the network. From the 3 nodes that propagated true belief values in the previous iteration only one (node 1) still has a belief value that is close to the true one. Especially node 6 heavily changed its belief value as it updated the belief value based on the beliefs of its neighbor. The action of the agent in this second iteration looks rather random. Note that the action value for excluded nodes has no influence and can therefore be chosen arbitrarily. \newline
 This example confirms that the agent doesn't act fully optimal which again indicates convergence to a local maxima. This might be caused by multiple reasons. It wasn't possible for me to do a full hyperparameter search due to limited hardware resources. Increasing the network complexity of the actor and the critic could also improve the performance as well as training for more iterations. In the next section a deeper insight into the convergence behavior is given.
 
 \subsection{Convergence}
-6t4f
+Figure \ref{fig:reward_tb} shows the episode rewards and figure \ref{fig:loss_tb} shows the episode losses for a social network with 6 true and 4 false sources during training. The pre-training phase is not part of the graphs.
+
 \begin{figure}[h]
-	\begin{subfigure}{0.45\textwidth}
+	\centering
+	\begin{subfigure}{0.4\textwidth}
 		\centering
 		\includegraphics[width=\linewidth]{reward_notSmoothed.png}  
 		\caption{.}
 	\end{subfigure}
-	\begin{subfigure}{0.45\textwidth}
+	\begin{subfigure}{0.4\textwidth}
 		\centering
 		\includegraphics[width=\linewidth]{reward_smoothed.png}  
 		\caption{.}
 	\end{subfigure}
-	\caption{\label{fig:reward_tb}.}
+	\caption{\label{fig:reward_tb}Episode rewards over the 5 million training iterations for social network with 6 true and 4 false sources. Figure (a) is smoothed with a factor of 0.6 and (b) is smoothed by a factor of 0.99.}
 \end{figure}
 
 \begin{figure}[h]
-	\begin{subfigure}{0.45\textwidth}
+	\centering
+	\begin{subfigure}{0.4\textwidth}
 		\centering
 		\includegraphics[width=\linewidth]{loss_notSmoothed.png}  
 		\caption{.}
 	\end{subfigure}
-	\begin{subfigure}{0.45\textwidth}
+	\begin{subfigure}{0.4\textwidth}
 		\centering
 		\includegraphics[width=\linewidth]{loss_smoothed.png}  
 		\caption{.}
 	\end{subfigure}
-	\caption{\label{fig:loss_tb}.}
+	\caption{\label{fig:loss_tb}Episode loss over the 5 million training iterations. Figure (a) is smoothed with a factor of 0.6 and (b) is smoothed by a factor of 0.99.}
 \end{figure}
 
-\section{Conclusions}
+As you can see for the lesser smoothed graphs there is quite a big difference in reward and loss for consecutive training iterations. This is caused by the random initialization of the social network. Depending on how many members have a nonzero trust value in a false source and on what the belief values of those false sources is the returned rewards can vary heavily. This effect is independent of the behavior of the agent. This makes training much more challenging as it is hard for the agent to evaluate whether a high episode reward originated from a good action or if just the social network initialization was lucky. High parameter updates due to outlier rewards caused by unusual network initializations can also cause the agent to oscillate between sub-optimal behaviors.
 
+\section{Conclusions}
+The goal of this work was to detect misinformation in a social network model by training a reinforcement learning agent. A novel social network model was introduced which extends naive learning by adding external sources. This social network model was transformed into a reinforcement learning environment with which an agent was trained by applying A2C. The trained agent was able to decrease the spread of misinformation in the network even for a high amount of sources who spread false values. However, the agent was not able to train a fully optimal behavior. The training results indicate that the agent gets stuck in local maxima. \newline
+In future work the social network model could be further improved for instance by making the way the members in the network interact more realistic. Furthermore, repeating the training with more hardware resources could increase the performance of the agent by being able to parameterize the critic and the actor with more complex models as well as being able to do a proper hyperparameter search. Another interesting improvement might be to use GNNs for parametrizing the actor and the critic in order to pass the topology of the social network.
 
 \clearpage
 \bibliography{references}{}

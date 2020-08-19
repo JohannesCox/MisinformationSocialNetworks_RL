@@ -1,5 +1,11 @@
 \begin{thebibliography}{10}
 
+\bibitem{PropagandaAnalysis1}
+Samer Al-khateeb, Muhammad Hussain, and Nitin Agarwal.
+\newblock {\em Leveraging Social Network Analysis and Cyber Forensics
+  Approaches to Study Cyber Propaganda Campaigns}, pages 19--42.
+\newblock 01 2019.
+
 \bibitem{rl_gnn2}
 Paul Almasan, Jose Suarez-Varela, Arnau Badia-Sampera, Krzysztof Rusek, Pere
   Barlet-Ros, and Albert Cabello.
@@ -12,13 +18,6 @@ Jerry Anunrojwong and Nat Sothanaphan.
 \newblock In {\em Proceedings of the 2018 ACM Conference on Economics and
   Computation}, EC ’18, page 619–636, New York, NY, USA, 2018. Association
   for Computing Machinery.
-
-\bibitem{reward_design_1}
-Sachiyo {Arai} and Nobuyuki {Tanaka}.
-\newblock {Experimental Analysis of Reward Design for Continuing Task in
-  Multiagent Domains}.
-\newblock {\em Transactions of the Japanese Society for Artificial
-  Intelligence}, 21(6):537--546, January 2006.
 
 \bibitem{A3C_2}
 Mohammad Babaeizadeh, Iuri Frosio, Stephen Tyree, Jason Clemons, and Jan Kautz.
@@ -42,7 +41,7 @@ Greg Brockman, Vicki Cheung, Ludwig Pettersson, Jonas Schneider, John Schulman,
 \newblock Openai gym, 2016.
 
 \bibitem{viral_marketing_3}
-Arnaud~[De Bruyn] and Gary~L. Lilien.
+Arnaud~De Bruyn and Gary~L. Lilien.
 \newblock A multi-stage model of word-of-mouth influence through viral
   marketing.
 \newblock {\em International Journal of Research in Marketing}, 25(3):151 --
@@ -58,6 +57,11 @@ Gabriel Dulac{-}Arnold, Daniel~J. Mankowitz, and Todd Hester.
 \newblock Challenges of real-world reinforcement learning.
 \newblock {\em CoRR}, abs/1904.12901, 2019.
 
+\bibitem{PropagandaAnalysis3}
+Emilio Ferrara.
+\newblock Contagion dynamics of extremist propaganda in social networks.
+\newblock {\em Information Sciences}, 418, 07 2017.
+
 \bibitem{random_graphs}
 E.~N. Gilbert.
 \newblock Random graphs.
@@ -69,6 +73,12 @@ Ivo Grondman, Lucian Busoniu, Gabriel Lopes, and Robert Babuska.
   policy gradients.
 \newblock {\em IEEE Transactions on Systems Man and Cybernetics Part
   B-Cybernetics}, 42:1291--1307, 11 2012.
+
+\bibitem{DetectMisinformation3}
+Arushi {Gupta} and Rishabh {Kaushal}.
+\newblock Improving spam detection in online social networks.
+\newblock In {\em 2015 International Conference on Cognitive Computing and
+  Information Processing(CCIP)}, pages 1--6, March 2015.
 
 \bibitem{stable-baselines}
 Ashley Hill, Antonin Raffin, Maximilian Ernestus, Adam Gleave, Anssi
@@ -94,19 +104,23 @@ Matthew Jackson and Benjamin Golub.
   of crowds.
 \newblock {\em SSRN Electronic Journal}, 2, 07 2007.
 
-\bibitem{reward_design_2}
-La{\"e}titia Matignon, Guillaume~J. Laurent, and Nadine Le~Fort-Piat.
-\newblock Reward function and initial values: Better choices for accelerated
-  goal-directed reinforcement learning.
-\newblock In Stefanos~D. Kollias, Andreas Stafylopatis, W{\l}odzis{\l}aw Duch,
-  and Erkki Oja, editors, {\em Artificial Neural Networks -- ICANN 2006}, pages
-  840--849. Springer Berlin Heidelberg, 2006.
+\bibitem{DetectMisinformation1}
+K.~P.~Krishna Kumar and Geethakumari Gopalan.
+\newblock Detecting misinformation in online social networks using cognitive
+  psychology.
+\newblock {\em Human-centric Computing and Information Sciences}, 4, 09 2014.
 
 \bibitem{A3C_1}
 Volodymyr Mnih, Adri{\`{a}}~Puigdom{\`{e}}nech Badia, Mehdi Mirza, Alex Graves,
   Timothy~P. Lillicrap, Tim Harley, David Silver, and Koray Kavukcuoglu.
 \newblock Asynchronous methods for deep reinforcement learning.
 \newblock {\em CoRR}, abs/1602.01783, 2016.
+
+\bibitem{DetectMisinformation4}
+D.~T. {Nguyen}, N.~P. {Nguyen}, and M.~T. {Thai}.
+\newblock Sources of misinformation in online social networks: Who to suspect?
+\newblock In {\em MILCOM 2012 - 2012 IEEE Military Communications Conference},
+  pages 1--6, 2012.
 
 \bibitem{pol_grad2}
 Philip~S. Thomas and Emma Brunskill.
@@ -139,6 +153,10 @@ Ronald Williams and Jing Peng.
   algorithms.
 \newblock {\em Connection Science}, 3:241--, 09 1991.
 
+\bibitem{PropagandaAnalysis2}
+Samuel~C. Woolley and Philip~N. Howard.
+\newblock Computational propaganda worldwide: Executive summary, 2017.
+
 \bibitem{A2C_3}
 Yuhuai Wu, Elman Mansimov, Shun Liao, Alec Radford, and John Schulman.
 \newblock Openai baselines: Acktr and a2c.
@@ -155,6 +173,13 @@ Z.~{Wu}, S.~{Pan}, F.~{Chen}, G.~{Long}, C.~{Zhang}, and P.~S. {Yu}.
 Keyulu Xu, Weihua Hu, Jure Leskovec, and Stefanie Jegelka.
 \newblock How powerful are graph neural networks?
 \newblock {\em CoRR}, abs/1810.00826, 2018.
+
+\bibitem{DetectMisinformation2}
+Huiling {Zhang}, Alan {Kuhnle}, Huiyuan {Zhang}, and My~T. {Thai}.
+\newblock Detecting misinformation in online social networks before it is too
+  late.
+\newblock In {\em 2016 IEEE/ACM International Conference on Advances in Social
+  Networks Analysis and Mining (ASONAM)}, pages 541--548, Aug 2016.
 
 \bibitem{gnn_2}
 Jie Zhou, Ganqu Cui, Zhengyan Zhang, Cheng Yang, Zhiyuan Liu, and Maosong Sun.

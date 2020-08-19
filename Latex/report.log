@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2020.7.4)  17 AUG 2020 21:22
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2020.7.4)  19 AUG 2020 13:33
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -361,204 +361,206 @@ LaTeX Font Info:    Try loading font information for U+msb on input line 25.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-)
-Underfull \hbox (badness 10000) in paragraph at lines 34--37
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 38--39
-
- []
-
-[1
+) [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-Underfull \hbox (badness 10000) in paragraph at lines 51--54
+Underfull \hbox (badness 10000) in paragraph at lines 37--40
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 59--62
+Underfull \hbox (badness 10000) in paragraph at lines 41--42
+
+ []
+
+[2]
+Underfull \hbox (badness 10000) in paragraph at lines 54--57
 
  []
 
 
-Overfull \hbox (3.88965pt too wide) in paragraph at lines 63--63
+Underfull \hbox (badness 10000) in paragraph at lines 62--65
+
+ []
+
+
+Overfull \hbox (3.88965pt too wide) in paragraph at lines 66--66
 []\OT1/cmr/bx/n/14.4 Social Net-work Model as a Re-in-force-ment Learn-
  []
 
-[2] [3]
-<./images/reward_func.png, id=24, 462.528pt x 346.896pt>
+[3] [4]
+<./images/reward_func.png, id=27, 462.528pt x 346.896pt>
 File: ./images/reward_func.png Graphic file (type png)
 <use ./images/reward_func.png>
-Package pdftex.def Info: ./images/reward_func.png  used on input line 98.
+Package pdftex.def Info: ./images/reward_func.png  used on input line 101.
 (pdftex.def)             Requested size: 126.0022pt x 94.49948pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 94--103
+Underfull \hbox (badness 10000) in paragraph at lines 97--106
 
  []
 
 
-Underfull \hbox (badness 1320) in paragraph at lines 104--105
+Underfull \hbox (badness 1320) in paragraph at lines 107--108
 [][]\OT1/cmr/m/n/10.95 The so-cial net-work en-vi-ron-ment as de-
  []
 
-[4 <./images/reward_func.png>] [5]
-Underfull \hbox (badness 10000) in paragraph at lines 159--162
+[5 <./images/reward_func.png>] [6]
+Underfull \hbox (badness 10000) in paragraph at lines 162--165
 
  []
 
-[6]
-Underfull \hbox (badness 10000) in paragraph at lines 171--172
+[7]
+Underfull \hbox (badness 10000) in paragraph at lines 174--175
 
  []
 
-<./images/NN_architecture.png, id=38, 443.6575pt x 564.1075pt>
+<./images/NN_architecture.png, id=42, 443.6575pt x 564.1075pt>
 File: ./images/NN_architecture.png Graphic file (type png)
 <use ./images/NN_architecture.png>
-Package pdftex.def Info: ./images/NN_architecture.png  used on input line 176.
+Package pdftex.def Info: ./images/NN_architecture.png  used on input line 179.
 (pdftex.def)             Requested size: 147.60132pt x 187.67097pt.
-[7 <./images/NN_architecture.png (PNG copy)>] [8]
-Underfull \hbox (badness 10000) in paragraph at lines 226--226
+[8 <./images/NN_architecture.png (PNG copy)>]
+<./images/comp_dnA_randomA.png, id=46, 462.528pt x 346.896pt>
+File: ./images/comp_dnA_randomA.png Graphic file (type png)
+<use ./images/comp_dnA_randomA.png>
+Package pdftex.def Info: ./images/comp_dnA_randomA.png  used on input line 205.
+
+(pdftex.def)             Requested size: 180.0pt x 135.00305pt.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[9]
+Underfull \hbox (badness 10000) in paragraph at lines 237--237
 []|\OT1/cmr/m/n/10.95 do-nothing
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 226--226
+Underfull \hbox (badness 10000) in paragraph at lines 237--237
 []|\OT1/cmr/m/n/10.95 pre-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 226--226
+Underfull \hbox (badness 10000) in paragraph at lines 237--237
 \OT1/cmr/m/n/10.95 training
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 226--226
+Underfull \hbox (badness 10000) in paragraph at lines 237--237
 []|\OT1/cmr/m/n/10.95 complete
  []
 
-<./images/perf_cm.png, id=46, 462.528pt x 346.896pt>
+[10 <./images/comp_dnA_randomA.png>]
+<./images/perf_cm.png, id=54, 462.528pt x 346.896pt>
 File: ./images/perf_cm.png Graphic file (type png)
 <use ./images/perf_cm.png>
-Package pdftex.def Info: ./images/perf_cm.png  used on input line 238.
+Package pdftex.def Info: ./images/perf_cm.png  used on input line 249.
+(pdftex.def)             Requested size: 198.0011pt x 148.50072pt.
+
+Underfull \hbox (badness 10000) in paragraph at lines 253--254
+
+ []
+
+<./images/dif_cm-pto.png, id=55, 462.528pt x 346.896pt>
+File: ./images/dif_cm-pto.png Graphic file (type png)
+<use ./images/dif_cm-pto.png>
+Package pdftex.def Info: ./images/dif_cm-pto.png  used on input line 257.
 (pdftex.def)             Requested size: 198.0011pt x 148.50072pt.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 242--243
-
- []
-
-[9]
-<./images/dif_cm-pto.png, id=50, 462.528pt x 346.896pt>
-File: ./images/dif_cm-pto.png Graphic file (type png)
-<use ./images/dif_cm-pto.png>
-Package pdftex.def Info: ./images/dif_cm-pto.png  used on input line 246.
-(pdftex.def)             Requested size: 198.0011pt x 148.50072pt.
- [10 <./images/perf_cm.png> <./images/dif_cm-pto.png>]
-<./images/7t3f_obs_iter1_hc.png, id=56, 752.8125pt x 45.16875pt>
+[11 <./images/perf_cm.png>]
+<./images/7t3f_obs_iter1_hc.png, id=60, 752.8125pt x 45.16875pt>
 File: ./images/7t3f_obs_iter1_hc.png Graphic file (type png)
 <use ./images/7t3f_obs_iter1_hc.png>
-Package pdftex.def Info: ./images/7t3f_obs_iter1_hc.png  used on input line 258
+Package pdftex.def Info: ./images/7t3f_obs_iter1_hc.png  used on input line 269
 .
 (pdftex.def)             Requested size: 306.0022pt x 18.36078pt.
-<./images/7t3f_action_iter1_hc.png, id=57, 750.805pt x 44.165pt>
+<./images/7t3f_action_iter1_hc.png, id=61, 750.805pt x 44.165pt>
 File: ./images/7t3f_action_iter1_hc.png Graphic file (type png)
 <use ./images/7t3f_action_iter1_hc.png>
 Package pdftex.def Info: ./images/7t3f_action_iter1_hc.png  used on input line 
-263.
+274.
 (pdftex.def)             Requested size: 306.0022pt x 18.0006pt.
 
-Underfull \hbox (badness 10000) in paragraph at lines 269--270
+Underfull \hbox (badness 10000) in paragraph at lines 280--281
 
  []
 
-<./images/3t7f_obs_iter1_hc.png, id=58, 754.82pt x 47.17625pt>
+[12 <./images/dif_cm-pto.png> <./images/7t3f_obs_iter1_hc.png> <./images/7t3f_a
+ction_iter1_hc.png>]
+<./images/3t7f_obs_iter1_hc.png, id=68, 754.82pt x 47.17625pt>
 File: ./images/3t7f_obs_iter1_hc.png Graphic file (type png)
 <use ./images/3t7f_obs_iter1_hc.png>
-Package pdftex.def Info: ./images/3t7f_obs_iter1_hc.png  used on input line 276
+Package pdftex.def Info: ./images/3t7f_obs_iter1_hc.png  used on input line 287
 .
 (pdftex.def)             Requested size: 306.0022pt x 19.12498pt.
-<./images/3t7f_action_iter1_hc.png, id=59, 755.82375pt x 47.17625pt>
+<./images/3t7f_action_iter1_hc.png, id=69, 755.82375pt x 47.17625pt>
 File: ./images/3t7f_action_iter1_hc.png Graphic file (type png)
 <use ./images/3t7f_action_iter1_hc.png>
 Package pdftex.def Info: ./images/3t7f_action_iter1_hc.png  used on input line 
-282.
+293.
 (pdftex.def)             Requested size: 306.0022pt x 19.09978pt.
-<./images/3t7f_obs_iter2_hc.png, id=60, 755.82375pt x 50.1875pt>
+<./images/3t7f_obs_iter2_hc.png, id=70, 755.82375pt x 50.1875pt>
 File: ./images/3t7f_obs_iter2_hc.png Graphic file (type png)
 <use ./images/3t7f_obs_iter2_hc.png>
-Package pdftex.def Info: ./images/3t7f_obs_iter2_hc.png  used on input line 288
+Package pdftex.def Info: ./images/3t7f_obs_iter2_hc.png  used on input line 299
 .
 (pdftex.def)             Requested size: 306.0022pt x 20.31892pt.
-<./images/3t7f_action_iter2_hc.png, id=61, 757.83125pt x 48.18pt>
+<./images/3t7f_action_iter2_hc.png, id=71, 757.83125pt x 48.18pt>
 File: ./images/3t7f_action_iter2_hc.png Graphic file (type png)
 <use ./images/3t7f_action_iter2_hc.png>
 Package pdftex.def Info: ./images/3t7f_action_iter2_hc.png  used on input line 
-294.
+305.
 (pdftex.def)             Requested size: 306.0022pt x 19.4547pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[11 <./images/7t3f_obs_iter1_hc.png> <./images/7t3f_action_iter1_hc.png>]
-<./images/reward_notSmoothed.png, id=67, 239.39438pt x 153.57375pt>
+ [13 <./images/3t7f_obs_iter1_hc.png> <./images/3t7f_action_iter1_hc.png> <./im
+ages/3t7f_obs_iter2_hc.png> <./images/3t7f_action_iter2_hc.png>]
+<./images/reward_notSmoothed.png, id=80, 239.39438pt x 153.57375pt>
 File: ./images/reward_notSmoothed.png Graphic file (type png)
 <use ./images/reward_notSmoothed.png>
-Package pdftex.def Info: ./images/reward_notSmoothed.png  used on input line 30
-9.
-(pdftex.def)             Requested size: 161.9989pt x 103.92494pt.
-<./images/reward_smoothed.png, id=68, 237.88875pt x 148.30406pt>
+Package pdftex.def Info: ./images/reward_notSmoothed.png  used on input line 32
+2.
+(pdftex.def)             Requested size: 143.9978pt x 92.37694pt.
+<./images/reward_smoothed.png, id=81, 237.88875pt x 148.30406pt>
 File: ./images/reward_smoothed.png Graphic file (type png)
 <use ./images/reward_smoothed.png>
-Package pdftex.def Info: ./images/reward_smoothed.png  used on input line 314.
-(pdftex.def)             Requested size: 161.9989pt x 100.99702pt.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<./images/loss_notSmoothed.png, id=69, 241.65282pt x 153.57375pt>
+Package pdftex.def Info: ./images/reward_smoothed.png  used on input line 327.
+(pdftex.def)             Requested size: 143.9978pt x 89.77513pt.
+<./images/loss_notSmoothed.png, id=82, 241.65282pt x 153.57375pt>
 File: ./images/loss_notSmoothed.png Graphic file (type png)
 <use ./images/loss_notSmoothed.png>
-Package pdftex.def Info: ./images/loss_notSmoothed.png  used on input line 323.
+Package pdftex.def Info: ./images/loss_notSmoothed.png  used on input line 337.
 
-(pdftex.def)             Requested size: 161.9989pt x 102.95714pt.
-<./images/loss_smoothed.png, id=70, 240.9pt x 148.30406pt>
+(pdftex.def)             Requested size: 143.9978pt x 91.51694pt.
+<./images/loss_smoothed.png, id=83, 240.9pt x 148.30406pt>
 File: ./images/loss_smoothed.png Graphic file (type png)
 <use ./images/loss_smoothed.png>
-Package pdftex.def Info: ./images/loss_smoothed.png  used on input line 328.
-(pdftex.def)             Requested size: 161.9989pt x 99.73204pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[12 <./images/3t7f_obs_iter1_hc.png> <./images/3t7f_action_iter1_hc.png> <./ima
-ges/3t7f_obs_iter2_hc.png> <./images/3t7f_action_iter2_hc.png>] [13 <./images/r
-eward_notSmoothed.png> <./images/reward_smoothed.png> <./images/loss_notSmoothe
-d.png> <./images/loss_smoothed.png>] (./report.bbl
+Package pdftex.def Info: ./images/loss_smoothed.png  used on input line 342.
+(pdftex.def)             Requested size: 143.9978pt x 88.65045pt.
+ [14 <./images/reward_notSmoothed.png> <./images/reward_smoothed.png> <./images
+/loss_notSmoothed.png> <./images/loss_smoothed.png>] [15] (./report.bbl
 Missing character: There is no â in font cmr10!
 Missing character: There is no € in font cmr10!
 Missing character: There is no ™ in font cmr10!
 Missing character: There is no â in font cmr10!
 Missing character: There is no € in font cmr10!
 Missing character: There is no “ in font cmr10!
- [14
 
-] [15]) [16]
-(./report.aux)
+[16
+
+] [17]) [18] (./report.aux)
 
 LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 5594 strings out of 494847
- 85101 string characters out of 6179081
- 256898 words of memory out of 5000000
- 8807 multiletter control sequences out of 15000+600000
+ 5606 strings out of 494847
+ 85413 string characters out of 6179081
+ 256944 words of memory out of 5000000
+ 8818 multiletter control sequences out of 15000+600000
  16018 words of font info for 58 fonts, out of 8000000 for 9000
  59 hyphenation exceptions out of 8191
- 42i,15n,40p,1533b,450s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 42i,15n,40p,1587b,450s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbxti10.pfb></usr/sh
 are/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/te
@@ -574,10 +576,10 @@ fb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/shar
 e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/share/texl
 ive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on report.pdf (16 pages, 452484 bytes).
+Output written on report.pdf (18 pages, 480096 bytes).
 PDF statistics:
- 148 PDF objects out of 1000 (max. 8388607)
- 86 compressed objects within 1 object stream
+ 156 PDF objects out of 1000 (max. 8388607)
+ 90 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 71 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 76 words of extra memory for PDF output out of 10000 (max. 10000000)
 
