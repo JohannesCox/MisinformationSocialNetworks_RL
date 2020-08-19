@@ -4,7 +4,7 @@ from shutil import copyfile
 import numpy as np
 import tensorflow as tf
 from stable_baselines import A2C
-from stable_baselines.common.policies import MlpPolicy, LstmPolicy, MlpLstmPolicy
+from stable_baselines.common.policies import MlpPolicy
 from stable_baselines.gail import ExpertDataset
 
 from Create_Pretraining_Dataset import generate_pretraining_dataset
@@ -39,15 +39,15 @@ if __name__ == '__main__':
     if not np.os.path.exists(args.save_dir):
         np.os.mkdir(args.save_dir)
 
-    loc_pretrain_dataset = "logs/pretraining_datasets/n100_6t_4f_5iter_0.02var.npz"
-    # generate_pretraining_dataset(env, 500000, loc_pretrain_dataset)
-    #
+    loc_pretrain_dataset = "logs/pretraining_datasets/n100_1t_9f_4iter_0.02var.npz"
+    generate_pretraining_dataset(env, 600000, loc_pretrain_dataset)
+
     copyfile("config.json", args.save_dir + "/config.json")
 
     pk = dict(net_arch=[1024, 1024, 1024, dict(vf=[1024, 512], pi=[1024, 1024, 512])], act_fun=tf.nn.tanh)
 
     model = A2C(MlpPolicy, env, verbose=1, tensorboard_log=args.save_dir + "/tensorboard_log/", ent_coef=0.04,
-                gamma=0.99, learning_rate=0.0000015, n_steps=20, epsilon=1e-04,
+                gamma=0.99, learning_rate=0.000002, n_steps=20, epsilon=1e-04,
                 policy_kwargs=pk)
 
     dataset = ExpertDataset(expert_path=loc_pretrain_dataset, train_fraction=0.95, batch_size=128)

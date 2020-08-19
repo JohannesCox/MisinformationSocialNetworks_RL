@@ -1,9 +1,11 @@
 {
-  "numb_nodes": 50,
+  "numb_nodes": 100,
   "connectivity": 0.1,
-  "numb_sources_true": 9,
-  "numb_sources_false": 1,
-  "max_iterations": 30,
+  "numb_sources_true": 6,
+  "numb_sources_false": 4,
+  "max_iterations": 10,
+  "initial_noise_variance": 0.02,
+  "policy_kwargs": "dict(net_arch=[1024, 1024, 1024, dict(vf=[1024, 512], pi=[1024, 1024, 512])], act_fun=tf.nn.tanh)",
 
-  "save_dir": "logs/A2C_9t_1f_50nodes"
+  "save_dir": "logs/A2C_6t_4f_100nodes_MLP_10iter_v1"
 }
